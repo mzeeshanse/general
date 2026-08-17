@@ -1,0 +1,30 @@
+sequenceDiagram
+    participant C as Consumer
+    participant NG as nginx
+    participant GW as API Gateway (YARP)
+    participant AUTH as Auth/RBAC
+    participant REC as Recording Service
+    participant CONN as VMS Connector
+    participant VMS as VMS
+    participant MP as Media Pipeline
+    participant OBJ as Object Storage
+
+    C->>NG: Request playback / clip
+    NG->>GW: Forward request
+    GW->>AUTH: Authorize
+    AUTH-->>GW: Allowed
+    GW->>REC: Playback(camera, start, end)
+    REC->>CONN: GetPlayback()
+    CONN->>VMS: Playback API / SDK
+    VMS-->>CONN: Recorded media
+    CONN->>MP: Create playback pipeline
+    MP-->>C: Playback stream
+
+    opt Clip export
+        REC->>CONN: Create/export clip
+        CONN->>VMS: Retrieve recording
+        VMS-->>CONN: Media
+        CONN->>MP: Package/export
+        MP->>OBJ: Store clip
+        OBJ-->>C: Signed download / access URL
+    end

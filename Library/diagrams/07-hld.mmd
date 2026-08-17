@@ -1,0 +1,27 @@
+sequenceDiagram
+    participant C as Consumer
+    participant NG as nginx
+    participant GW as API Gateway (YARP)
+    participant AUTH as Auth/RBAC
+    participant STR as Stream Service
+    participant CONN as VMS Connector
+    participant VMS as VMS
+    participant BUS as Message Bus
+    participant EVT as Event Service
+    participant CH as ClickHouse
+
+    C->>NG: PTZ command
+    NG->>GW: Forward REST/gRPC
+    GW->>AUTH: Authorize PTZ
+    AUTH-->>GW: Allowed
+    GW->>STR: PTZ(command)
+    STR->>CONN: PTZ(command)
+    CONN->>VMS: Vendor PTZ API
+    VMS-->>CONN: Result
+    CONN-->>STR: Result
+    STR-->>GW: Result
+    GW-->>C: Success / Failure
+
+    STR-)BUS: PTZ audit event
+    BUS-)EVT: Deliver audit
+    EVT-)CH: Persist audit

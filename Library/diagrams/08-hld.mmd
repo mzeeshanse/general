@@ -1,0 +1,6 @@
+flowchart LR
+    VMS[VMS] --> CONN[VMS Connector]
+    CONN --> BUS[Message Bus<br/>RabbitMQ / Kafka]
+    BUS --> EVT[Event Service]
+    EVT --> CH[ClickHouse<br/>Events / Audit]
+    EVT --> SUB[Consumer / Subscriber Fan-out]

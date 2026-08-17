@@ -1,0 +1,16 @@
+flowchart TB
+    CS[Common VMS Gateway Contract]
+
+    CS --> M[Milestone Adapter<br/>MIP SDK / RTSP Gateway]
+    CS --> G[Genetec Adapter<br/>SDK / Web SDK]
+    CS --> A[Avigilon Adapter<br/>ACC SDK / ONVIF]
+    CS --> B[Bosch Adapter<br/>VMS SDK / ONVIF]
+    CS --> O[ONVIF Adapter<br/>Profiles S/T/G/M]
+    CS --> X[Generic Adapter<br/>RTSP / HTTP]
+
+    M --> MV[Milestone XProtect]
+    G --> GV[Genetec Security Center]
+    A --> AV[Avigilon Control Center]
+    B --> BV[Bosch BVMS]
+    O --> OV[ONVIF NVR / VMS]
+    X --> XV[Generic VMS / Stream API]
