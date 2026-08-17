@@ -1,0 +1,51 @@
+sequenceDiagram
+    autonumber
+    participant C as Consumer
+    participant NG as nginx
+    participant GW as API Gateway (YARP)
+    participant AUTH as Auth/RBAC
+    participant STR as Stream Service
+    participant R as Redis
+    participant CONN as VMS Connector
+    participant VMS as VMS
+    participant MP as Media Pipeline
+    participant BUS as Message Bus
+    participant EVT as Event Service
+    participant CH as ClickHouse
+
+    C->>NG: POST /streams
+    NG->>GW: Forward REST/gRPC request
+    GW->>AUTH: Authenticate / Authorize
+    AUTH-->>GW: Allowed
+    GW->>STR: RequestStream(cameraId, profile, protocol)
+
+    STR->>R: Atomic lookup/create session
+
+    alt Existing session
+        R-->>STR: Existing session + refcount
+        STR->>R: Increment refcount
+    else No session
+        STR->>CONN: OpenLiveStream()
+        CONN->>VMS: SDK / ONVIF / VMS API
+        VMS-->>CONN: Media source / handle
+        CONN->>MP: Create / attach pipeline
+        MP-->>CONN: Pipeline ready/starting
+        CONN-->>STR: Session handle
+        STR->>R: Store session + refcount=1
+    end
+
+    STR-->>GW: Stream URL / token / session metadata
+    GW-->>C: 200 OK + stream endpoint
+
+    STR-)BUS: Publish session event
+    BUS-)EVT: Deliver event
+    EVT-)CH: Store audit/event
+
+    Note over C,MP: Separate MEDIA DATA PATH begins
+
+    C->>NG: Connect to media endpoint where applicable
+    C->>MP: Media connection according to protocol
+    MP-->>C: Video / audio media
+
+    Note over STR,R: On disconnect, decrement refcount
+    Note over STR,R: At zero, close after short idle grace period
