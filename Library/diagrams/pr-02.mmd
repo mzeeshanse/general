@@ -1,0 +1,36 @@
+flowchart LR
+    VMS[VMS<br/>Live / Recorded Media]
+    CONN[VMS Connector<br/>Vendor SDK / ONVIF / RTSP / HTTP]
+    MP[Media Pipeline<br/>GStreamer / FFmpeg]
+    DECIDE{Source compatible<br/>with requested output?}
+    PASS[Passthrough / Transmux]
+    TRANS[Selective Transcoding]
+    PACK[Protocol Packaging]
+    RTSP[RTSP]
+    HLS[HLS]
+    WEBRTC[WebRTC]
+    SRT[SRT]
+    RTMP[RTMP]
+    NG[nginx / HTTP Edge<br/>where applicable]
+    C[Consumer]
+
+    VMS --> CONN
+    CONN --> MP
+    MP --> DECIDE
+    DECIDE -->|Yes| PASS
+    DECIDE -->|No| TRANS
+    PASS --> PACK
+    TRANS --> PACK
+
+    PACK --> RTSP
+    PACK --> HLS
+    PACK --> WEBRTC
+    PACK --> SRT
+    PACK --> RTMP
+
+    RTSP --> C
+    HLS --> NG
+    NG --> C
+    WEBRTC --> C
+    SRT --> C
+    RTMP --> C

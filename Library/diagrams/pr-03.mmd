@@ -1,0 +1,39 @@
+sequenceDiagram
+    participant C as Consumer
+    participant NG as nginx
+    participant GW as API Gateway (YARP)
+    participant AUTH as Auth/RBAC
+    participant STR as Stream Service
+    participant R as Redis
+    participant CONN as VMS Connector
+    participant VMS as VMS
+    participant MP as Media Pipeline
+
+    C->>NG: Request live stream
+    NG->>GW: Forward REST/gRPC request
+    GW->>AUTH: Authenticate / Authorize
+    AUTH-->>GW: Allowed
+    GW->>STR: Create/reuse stream session
+
+    STR->>R: Atomic session lookup
+
+    alt Existing compatible session
+        R-->>STR: Existing session + refCount
+        STR->>R: Increment refCount
+    else No compatible session
+        STR->>CONN: Open live stream
+        CONN->>VMS: Vendor SDK / ONVIF / stream API
+        VMS-->>CONN: Media source
+        CONN->>MP: Create/attach pipeline
+        MP-->>CONN: Pipeline ready/starting
+        CONN-->>STR: Session information
+        STR->>R: Store session + refCount=1
+    end
+
+    STR-->>GW: Stream URL / token / session metadata
+    GW-->>C: Stream endpoint
+
+    Note over C,MP: Actual media follows the separate media path
+
+    C->>MP: Connect using requested media protocol
+    MP-->>C: Video / audio
