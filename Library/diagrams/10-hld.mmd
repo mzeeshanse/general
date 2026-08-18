@@ -1,0 +1,54 @@
+flowchart TB
+    INTERNET[External Consumers]
+
+    subgraph K8S[Kubernetes / Container Platform]
+        ING[nginx Ingress / Edge]
+
+        API[API Gateway<br/>YARP]
+        AUTH[Auth / RBAC]
+        DEV[Device Service]
+        STR[Stream Service]
+        REC[Recording Service]
+        EVT[Event Service]
+
+        CONN1[Milestone Connector]
+        CONN2[Genetec Connector]
+        CONN3[Avigilon Connector]
+        CONN4[Bosch / ONVIF / Generic Connectors]
+
+        MEDIA[Media Worker Pool<br/>GStreamer / FFmpeg]
+    end
+
+    PG[(PostgreSQL)]
+    REDIS[(Redis)]
+    BUS[(RabbitMQ / Kafka)]
+    CH[(ClickHouse)]
+    OBJ[(S3-compatible Object Storage)]
+
+    INTERNET --> ING
+    ING --> API
+
+    API --> AUTH
+    API --> DEV
+    API --> STR
+    API --> REC
+    API --> EVT
+
+    DEV --> CONN1
+    STR --> CONN1
+    REC --> CONN1
+
+    STR --> MEDIA
+    CONN1 --> MEDIA
+    CONN2 --> MEDIA
+    CONN3 --> MEDIA
+    CONN4 --> MEDIA
+
+    AUTH --> PG
+    DEV --> PG
+    REC --> PG
+    STR --> REDIS
+
+    EVT --> BUS
+    BUS --> CH
+    REC --> OBJ

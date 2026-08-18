@@ -1,0 +1,6 @@
+flowchart LR
+    VMS[VMS] --> CONN[VMS Connector]
+    CONN --> BUS[Message Bus<br/>RabbitMQ / Kafka]
+    BUS --> EVT[Event / Audit Service]
+    EVT --> STORE[Operational / Analytics Store]
+    EVT --> SUB[Consumers / Subscribers]

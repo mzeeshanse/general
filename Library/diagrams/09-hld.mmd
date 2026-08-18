@@ -1,0 +1,17 @@
+flowchart LR
+    IDP[Identity Provider<br/>OAuth2 / OIDC / SSO]
+    C[Consumer]
+    NG[nginx<br/>TLS / Edge]
+    GW[API Gateway<br/>YARP]
+    AUTH[Auth / RBAC]
+    S[Application Services]
+    CONN[VMS Connector]
+    VMS[VMS]
+
+    IDP --> AUTH
+    C --> NG
+    NG --> GW
+    GW --> AUTH
+    AUTH --> S
+    S --> CONN
+    CONN --> VMS
