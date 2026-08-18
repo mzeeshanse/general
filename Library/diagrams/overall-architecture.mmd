@@ -1,0 +1,33 @@
+flowchart TB
+    C[Consumers<br/>Web / Mobile / Integrations]
+
+    NG[nginx<br/>Edge Reverse Proxy / Ingress<br/>TLS / Edge Routing]
+
+    GW[API Gateway<br/>REST + gRPC<br/>Implementation: YARP]
+
+    AUTH[Auth / RBAC]
+    APP[Application Services<br/>Device / Stream / Recording / Administration]
+    CONN[VMS Connector Layer]
+
+    VMS[VMS Platforms<br/>Milestone / Genetec / Avigilon / Bosch / ONVIF / Generic]
+
+    MP[Media Pipeline<br/>GStreamer / FFmpeg]
+
+    OUT[Media Outputs<br/>RTSP / HLS / WebRTC / SRT / RTMP]
+
+    BUS[Message Bus<br/>Asynchronous Events]
+    EVT[Event / Audit Service]
+
+    C --> NG
+    NG --> GW
+    GW --> AUTH
+    GW --> APP
+    APP --> CONN
+    CONN --> VMS
+
+    CONN --> MP
+    MP --> OUT
+    OUT --> C
+
+    CONN --> BUS
+    BUS --> EVT
